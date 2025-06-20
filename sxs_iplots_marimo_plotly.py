@@ -116,16 +116,18 @@ def create_functions(h, t, metadata):
                     hlm.append([ell, m])
     
     f=[]; amp=[]; frequencies_lm=[]; htilde_lm_scaled=[];
+    fin_freq = (np.linalg.norm(h.angular_velocity[h.max_norm_index()]) / (2*np.pi)) * 2.15
     for i in hlm:
         f_i, amp_i, frequencies_lm_i, htilde_lm_scaled_i = SPA_fft_calc(i[0], i[1], h, t, metadata);
-        ini_freq_m = ((metadata.initial_orbital_frequency / (2*np.pi)) * i[-1]) * c**3/(G*M)
+        ini_freq_m = ((metadata.initial_orbital_frequency / (2*np.pi)) * i[-1]) * c**3/(G*M) 
+        fin_freq_m = fin_freq * i[-1]
         ini_index_strain = find_index(frequencies_lm_i, ini_freq_m)
+        fin_index_strain = find_index(frequencies_lm_i, fin_freq_m)
         #test_index = find_index(htilde_lm_scaled_i, amp_i[0])
-        
         f.append(np.array(f_i)[::12])
         amp.append(np.array(amp_i)[::12])
-        frequencies_lm.append(np.array(frequencies_lm_i)[ini_index_strain:h.max_norm_index()][::12])
-        htilde_lm_scaled.append(np.array(htilde_lm_scaled_i)[ini_index_strain:h.max_norm_index()][::12])
+        frequencies_lm.append(np.array(frequencies_lm_i)[ini_index_strain:fin_index_strain][::12])
+        htilde_lm_scaled.append(np.array(htilde_lm_scaled_i)[ini_index_strain:fin_index_strain][::12])
     #print(len(f))
     f=np.array(f); amp=np.array(amp); frequencies_lm=np.array(frequencies_lm, dtype=object); htilde_lm_scaled=np.array(htilde_lm_scaled, dtype=object)
         
