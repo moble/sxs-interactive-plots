@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.13.15"
+__generated_with = "0.14.0"
 app = marimo.App()
 
 
@@ -291,12 +291,44 @@ def _(
                              line=dict(color='orchid', width=2),
                              name="aLIGO Noise Curve"))
     fig
+    return (xStrain,)
+
+
+@app.cell
+def _(xStrain):
+    xStrain
+    return
+
+
+@app.cell
+def _(h2139):
+    h2139.data
+    return
+
+
+@app.cell
+def _(h2139):
+    h2139.t
     return
 
 
 @app.cell
 def _(metadata2139):
-    metadata2139.initial_orbital_frequency
+    omegai = metadata2139.initial_orbital_frequency
+    omegai
+    return (omegai,)
+
+
+@app.cell
+def _(np, omegai):
+    fi = omegai/(2*np.pi)
+    fi
+    return (fi,)
+
+
+@app.cell
+def _(fi):
+    1/fi
     return
 
 
@@ -313,8 +345,50 @@ def _(metadata2139, np):
 
 
 @app.cell
+def _(h2139, np):
+    (np.linalg.norm(h2139.angular_velocity[h2139.max_norm_index()]) / (2*np.pi)) 
+    return
+
+
+@app.cell
+def _(h2139):
+    h2139.max_norm_index()+100
+    return
+
+
+@app.cell
+def _(h2139):
+    h2139.angular_velocity[14967]
+    return
+
+
+@app.cell
+def _(np):
+    np.linalg.norm([-5.01125441e-05, -3.49534150e-04,  9.38034656e+02])
+    return
+
+
+@app.cell
+def _(G, M, c):
+    c**3 / (G*M)
+    return
+
+
+@app.cell
 def _(h2139):
     h2139.angular_velocity
+    return
+
+
+@app.cell
+def _(sxs):
+    h4001 = sxs.load("SXS:BBH:4001").h
+    return (h4001,)
+
+
+@app.cell
+def _(h4001, np):
+    (np.linalg.norm(h4001.angular_velocity[h4001.max_norm_index()]) / (2*np.pi)) 
     return
 
 

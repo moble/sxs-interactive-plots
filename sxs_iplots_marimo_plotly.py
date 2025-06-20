@@ -35,7 +35,6 @@ def load_strain(h_id):
     sxs_bbh_n = sxs.load("SXS:"+h_id)
     metadata = sxs_bbh_n.metadata
     h = sxs_bbh_n.h
-
     reference_index = h.index_closest_to(metadata.reference_time)
     h=h[reference_index:]
     print(f"Mass ratio: {metadata.reference_mass_ratio} \nReference eccentricity: {metadata.reference_eccentricity} \nReference Chi1_Perp (Precession): {metadata.reference_chi1_perp} \nReference Chi2_Perp (Precession): {metadata.reference_chi2_perp}")
@@ -47,6 +46,7 @@ def load_strain(h_id):
 
 def dimensionalize(h, G, c, M, r):
     h.time = h.time * G * (M/(c**3))
+    print(h)
     h = h * (M/r) * (G/(c**2))
     t = h.t
     return h, t
@@ -80,7 +80,8 @@ def SPA_fft_calc(l,m, h, t, metadata):
     h_lm = h[:, h.index(l,m)]
     h_lm_interpolated = h_lm.interpolate(np.arange(h_lm.t[0], h_lm.t[-1], dt))
     hlm_tapered = h_lm_interpolated.taper(0, h.t[0]+1000*(G*(M/(c**3))))
-    hlm_transitioned = hlm_tapered.transition_to_constant(h.max_norm_time()+100*(G*(M/(c**3))), h.max_norm_time()+200*(G*(M/(c**3))))
+    hlm_transitioned = hlm_tapered.transition_to_constant(h.t[h.max_norm_index()+100])#, h.max_norm_time()+200*(G*(M/(c**3))))
+    #hlm_transitioned = hlm_tapered.transition_to_constant(h.max_norm_time()+100*(G*(M/(c**3))#, h.max_norm_time()+200*(G*(M/(c**3))))
     if type(metadata.reference_eccentricity) == float and ((metadata.reference_eccentricity) > 0.3):
         hlm_padded = hlm_transitioned.pad(100000*(G*(M/(c**3))))
     else:
@@ -117,14 +118,14 @@ def create_functions(h, t, metadata):
     f=[]; amp=[]; frequencies_lm=[]; htilde_lm_scaled=[];
     for i in hlm:
         f_i, amp_i, frequencies_lm_i, htilde_lm_scaled_i = SPA_fft_calc(i[0], i[1], h, t, metadata);
-        ini_freq_m = (metadata.initial_orbital_frequency / (2*np.pi)) * i[-1]
-        print(ini_freq_m)
-        ini_index_SPA = find_index(f_i, ini_freq_m)
+        ini_freq_m = ((metadata.initial_orbital_frequency / (2*np.pi)) * i[-1]) * c**3/(G*M)
         ini_index_strain = find_index(frequencies_lm_i, ini_freq_m)
-        f.append(np.array(f_i)[ini_index_SPA:][::12])
-        amp.append(np.array(amp_i)[ini_index_strain:][::12])
-        frequencies_lm.append(np.array(frequencies_lm_i)[::12])
-        htilde_lm_scaled.append(np.array(htilde_lm_scaled_i)[::12])
+        #test_index = find_index(htilde_lm_scaled_i, amp_i[0])
+        
+        f.append(np.array(f_i)[::12])
+        amp.append(np.array(amp_i)[::12])
+        frequencies_lm.append(np.array(frequencies_lm_i)[ini_index_strain:h.max_norm_index()][::12])
+        htilde_lm_scaled.append(np.array(htilde_lm_scaled_i)[ini_index_strain:h.max_norm_index()][::12])
     #print(len(f))
     f=np.array(f); amp=np.array(amp); frequencies_lm=np.array(frequencies_lm, dtype=object); htilde_lm_scaled=np.array(htilde_lm_scaled, dtype=object)
         
