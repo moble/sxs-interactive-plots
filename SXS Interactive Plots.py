@@ -44,22 +44,22 @@ def _(mo):
 def _():
     # '%matplotlib ipympl' command supported automatically in marimo
 
+    import marimo as mo
     import re
     import sxs
+    import math
     import numpy as np
+    import pandas as pd
     import bilby
     import scipy.interpolate  
     from scipy.signal import argrelextrema
     import matplotlib.pyplot as plt
-    from matplotlib.widgets import CheckButtons
-    import ipywidgets as widgets
     from IPython.display import display
-    import mpl_interactions.ipyplot as iplt
     import sxs_iplots_marimo_plotly as isxs
     import plotly.graph_objects as go
     import plotly.io as pio
     pio.renderers.default = 'iframe'
-    return bilby, go, isxs, np, plt, re, sxs
+    return bilby, go, isxs, mo, pd, plt, re, sxs
 
 
 @app.cell(hide_code=True)
@@ -257,15 +257,8 @@ def _(mo):
 @app.cell
 def _(mo):
     Distance = mo.ui.slider(100.0,10000.0,10.0, label="Distance")
-    Distance
-    return (Distance,)
-
-
-@app.cell
-def _(mo):
     Mass = mo.ui.slider(33.0,10000.0,10.0, label="Mass")
-    Mass
-    return (Mass,)
+    return Distance, Mass
 
 
 @app.cell(hide_code=True)
@@ -280,115 +273,18 @@ def _(
     ligo_o4_asd_amplitude,
     ligo_o4_asd_frequency,
     metadata2139,
+    mo,
     t2139,
 ):
-    xSPA, ySPA, xStrain, yStrain, hlm = isxs.load_plots(h=h2139_1, t=t2139, metadata=metadata2139)
-    fig = isxs.iplt_lm(xSPA, ySPA, xStrain, yStrain, hlm, Mass.value, Distance.value)
+    xStrain, yStrain, hlm = isxs.load_plots(h=h2139_1, t=t2139, metadata=metadata2139)
+    fig = isxs.iplt_lm(xStrain, yStrain, hlm, Mass.value, Distance.value)
     fig.add_trace(go.Scatter(x=ce_asd_amplitude, y=ce_asd_frequency,
                              line=dict(color='orange', width=2),
                              name="CE Noise Curve"))
     fig.add_trace(go.Scatter(x=ligo_o4_asd_amplitude, y=ligo_o4_asd_frequency,
                              line=dict(color='orchid', width=2),
                              name="aLIGO Noise Curve"))
-    fig
-    return (xStrain,)
-
-
-@app.cell
-def _(xStrain):
-    xStrain
-    return
-
-
-@app.cell
-def _(h2139):
-    h2139.data
-    return
-
-
-@app.cell
-def _(h2139):
-    h2139.t
-    return
-
-
-@app.cell
-def _(metadata2139):
-    omegai = metadata2139.initial_orbital_frequency
-    omegai
-    return (omegai,)
-
-
-@app.cell
-def _(np, omegai):
-    fi = omegai/(2*np.pi)
-    fi
-    return (fi,)
-
-
-@app.cell
-def _(fi):
-    1/fi
-    return
-
-
-@app.cell
-def _(metadata2139):
-    metadata2139.reference_orbital_frequency
-    return
-
-
-@app.cell
-def _(metadata2139, np):
-    np.linalg.norm(metadata2139.reference_orbital_frequency)
-    return
-
-
-@app.cell
-def _(h2139, np):
-    (np.linalg.norm(h2139.angular_velocity[h2139.max_norm_index()]) / (2*np.pi)) 
-    return
-
-
-@app.cell
-def _(h2139):
-    h2139.max_norm_index()+100
-    return
-
-
-@app.cell
-def _(h2139):
-    h2139.angular_velocity[14967]
-    return
-
-
-@app.cell
-def _(np):
-    np.linalg.norm([-5.01125441e-05, -3.49534150e-04,  9.38034656e+02])
-    return
-
-
-@app.cell
-def _(G, M, c):
-    c**3 / (G*M)
-    return
-
-
-@app.cell
-def _(h2139):
-    h2139.angular_velocity
-    return
-
-
-@app.cell
-def _(sxs):
-    h4001 = sxs.load("SXS:BBH:4001").h
-    return (h4001,)
-
-
-@app.cell
-def _(h4001, np):
-    (np.linalg.norm(h4001.angular_velocity[h4001.max_norm_index()]) / (2*np.pi)) 
+    mo.vstack([Distance, Mass, fig])
     return
 
 
@@ -434,126 +330,56 @@ def _(mo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
-    mo.md(r"""## Example 1(b): BBH1441 (Mass Ratio: 8)""")
-    return
+    dropdown_MR = mo.ui.dropdown(
+        options=["BBH:1154 (MR:1)", "BBH:2139 (MR:3)", "BBH:1441 (MR:8)", "BBH:1107 (MR:10)"],
+        value="BBH:1154 (MR:1)",
+        label="Choose a Mass Ratio",
+        searchable=True,
+    )
+    dropdown_MR
+    return (dropdown_MR,)
 
 
 @app.cell
-def _(isxs):
-    metadata1441, h1441 = isxs.load_strain("BBH:1441")
-    return h1441, metadata1441
+def _(G, M, c, dropdown_MR, isxs, r):
+    metadataMR, hMR = isxs.load_strain(dropdown_MR.value[:8])
+    hMR_1, tMR = isxs.dimensionalize(hMR, G, c, M, r)
+    return hMR_1, metadataMR, tMR
 
 
 @app.cell
-def _(G, M, c, h1441, isxs, r):
-    h1441_1, t1441 = isxs.dimensionalize(h1441, G, c, M, r)
-    return h1441_1, t1441
+def _(mo):
+    DistanceMR = mo.ui.slider(100.0,10000.0,10.0, label="Distance")
+    MassMR = mo.ui.slider(33.0,10000.0,10.0, label="Mass")
+    return DistanceMR, MassMR
 
 
 @app.cell
 def _(
+    DistanceMR,
+    MassMR,
     ce_asd_amplitude,
     ce_asd_frequency,
-    h1441_1,
+    go,
+    hMR_1,
     isxs,
     ligo_o4_asd_amplitude,
     ligo_o4_asd_frequency,
-    metadata1441,
-    plt,
-    t1441,
+    metadataMR,
+    mo,
+    tMR,
 ):
-    isxs.iplt_lm(h=h1441_1, t=t1441, metadata=metadata1441)
-    plt.loglog(ce_asd_amplitude, ce_asd_frequency, label='CE', color='orange')
-    plt.loglog(ligo_o4_asd_amplitude, ligo_o4_asd_frequency, label='LIGO O4', color='red')
-    plt.draw()
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""## Example 1(c): BBH1107 (Mass Ratio:10)""")
-    return
-
-
-@app.cell
-def _(isxs):
-    metadata1107, h1107 = isxs.load_strain("BBH:1107")
-    return h1107, metadata1107
-
-
-@app.cell
-def _(metadata1107):
-    metadata1107.reference_eccentricity
-    return
-
-
-@app.cell
-def _(G, M, c, h1107, isxs, r):
-    h1107_1, t1107 = isxs.dimensionalize(h1107, G, c, M, r)
-    return h1107_1, t1107
-
-
-@app.cell
-def _(
-    ce_asd_amplitude,
-    ce_asd_frequency,
-    h1107_1,
-    isxs,
-    ligo_o4_asd_amplitude,
-    ligo_o4_asd_frequency,
-    metadata1107,
-    plt,
-    t1107,
-):
-    isxs.iplt_lm(h=h1107_1, t=t1107, metadata=metadata1107)
-    plt.loglog(ce_asd_amplitude, ce_asd_frequency, label='CE', color='orange')
-    plt.loglog(ligo_o4_asd_amplitude, ligo_o4_asd_frequency, label='LIGO O4', color='red')
-    plt.draw()
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""## Example 1(d): BBH1154 (Mass Ratio: 1)""")
-    return
-
-
-@app.cell
-def _(isxs):
-    metadata1154, h1154 = isxs.load_strain("BBH:1154")
-    return h1154, metadata1154
-
-
-@app.cell
-def _(metadata1154):
-    metadata1154.reference_eccentricity
-    return
-
-
-@app.cell
-def _(G, M, c, h1154, isxs, r):
-    h1154_1, t1154 = isxs.dimensionalize(h1154, G, c, M, r)
-    return h1154_1, t1154
-
-
-@app.cell
-def _(
-    ce_asd_amplitude,
-    ce_asd_frequency,
-    h1154_1,
-    isxs,
-    ligo_o4_asd_amplitude,
-    ligo_o4_asd_frequency,
-    metadata1154,
-    plt,
-    t1154,
-):
-    isxs.iplt_lm(h=h1154_1, t=t1154, metadata=metadata1154, cut=False)
-    plt.loglog(ce_asd_amplitude, ce_asd_frequency, label='CE', color='orange')
-    plt.loglog(ligo_o4_asd_amplitude, ligo_o4_asd_frequency, label='LIGO O4', color='red')
-    plt.draw()
+    xStrainMR, yStrainMR, hlmMR = isxs.load_plots(h=hMR_1, t=tMR, metadata=metadataMR)
+    figMR = isxs.iplt_lm(xStrainMR, yStrainMR, hlmMR, MassMR.value, DistanceMR.value)
+    figMR.add_trace(go.Scatter(x=ce_asd_amplitude, y=ce_asd_frequency,
+                             line=dict(color='orange', width=2),
+                             name="CE Noise Curve"))
+    figMR.add_trace(go.Scatter(x=ligo_o4_asd_amplitude, y=ligo_o4_asd_frequency,
+                             line=dict(color='orchid', width=2),
+                             name="aLIGO Noise Curve"))
+    mo.vstack([DistanceMR, MassMR, figMR])
     return
 
 
@@ -575,145 +401,56 @@ def _(mo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
-    mo.md(r"""## Example 2(a): BBH1361 (Mass Ratio: 6; High Eccentricity)""")
-    return
+    dropdown_ecc = mo.ui.dropdown(
+        options=["BBH:2612 (MR:1)", "BBH:1360 (MR:1)", "BBH:1361 (MR:6)"],
+        value="BBH:2612 (MR:1)",
+        label="Choose a system:",
+        searchable=True,
+    )
+    dropdown_ecc
+    return (dropdown_ecc,)
 
 
 @app.cell
-def _(isxs):
-    metadata2527, h2527 = isxs.load_strain("BBH:2527")
-    return h2527, metadata2527
+def _(G, M, c, dropdown_ecc, isxs, r):
+    metadata_ecc, h_ecc = isxs.load_strain(dropdown_ecc.value[:8])
+    h_ecc_1, t_ecc = isxs.dimensionalize(h_ecc, G, c, M, r)
+    return h_ecc_1, metadata_ecc, t_ecc
 
 
 @app.cell
-def _(h2527, mo, plt):
-    #plt.figure()
-    plt.plot(h2527.t, h2527.data.view(float))
-    plt.title(f"Extrapolated waveform")
-    plt.xlabel(r"$(t_{\mathrm{corr}} - r_\ast)/M$")
-    plt.ylabel(r"$r\, h^{(\ell,m)}/M$");
-    mo.mpl.interactive(plt.gcf())
-    #plt.show()
-    return
-
-
-@app.cell
-def _(G, M, c, h2527, isxs, r):
-    h2527_1, t2527 = isxs.dimensionalize(h2527, G, c, M, r)
-    return h2527_1, t2527
-
-
-@app.cell
-def _(Mass):
-    print(type(Mass.value))
-    return
-
-
-@app.cell
-def _():
-    return
+def _(mo):
+    Distance_ecc = mo.ui.slider(100.0,10000.0,10.0, label="Distance")
+    Mass_ecc = mo.ui.slider(33.0,10000.0,10.0, label="Mass")
+    return Distance_ecc, Mass_ecc
 
 
 @app.cell
 def _(
-    Distance,
-    Mass,
+    Distance_ecc,
+    Mass_ecc,
     ce_asd_amplitude,
     ce_asd_frequency,
-    h2527_1,
+    go,
+    h_ecc_1,
     isxs,
     ligo_o4_asd_amplitude,
     ligo_o4_asd_frequency,
-    metadata2527,
-    plt,
-    t2527,
+    metadata_ecc,
+    mo,
+    t_ecc,
 ):
-    isxs.iplt_lm(h=h2527_1, t=t2527, metadata=metadata2527, Mass=Mass.value, Distance=Distance.value, cut=False)
-    plt.loglog(ce_asd_amplitude, ce_asd_frequency, label='CE', color='orange')
-    plt.loglog(ligo_o4_asd_amplitude, ligo_o4_asd_frequency, label='LIGO O4', color='red')
-    plt.draw()
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""## Example 2(b): BBH1360 (Mass Ratio: 1; High Eccentricity)""")
-    return
-
-
-@app.cell
-def _(isxs):
-    metadata1360, h1360 = isxs.load_strain("BBH:1360")
-    return h1360, metadata1360
-
-
-@app.cell
-def _(G, M, c, h1360, isxs, r):
-    h1360_1, t1360 = isxs.dimensionalize(h1360, G, c, M, r)
-    return h1360_1, t1360
-
-
-@app.cell
-def _(
-    ce_asd_amplitude,
-    ce_asd_frequency,
-    h1360_1,
-    isxs,
-    ligo_o4_asd_amplitude,
-    ligo_o4_asd_frequency,
-    metadata1360,
-    plt,
-    t1360,
-):
-    isxs.iplt_lm(h=h1360_1, t=t1360, metadata=metadata1360, cut=False)
-    plt.loglog(ce_asd_amplitude, ce_asd_frequency, label='CE', color='orange')
-    plt.loglog(ligo_o4_asd_amplitude, ligo_o4_asd_frequency, label='LIGO O4', color='red')
-    plt.draw()
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""where did the SPA go..""")
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""## Example 2(c): BBH2612 (Mass Ratio: 1 ; High Eccentricity)""")
-    return
-
-
-@app.cell
-def _(isxs):
-    metadata2612, h2612 = isxs.load_strain("BBH:2612")
-    return h2612, metadata2612
-
-
-@app.cell
-def _(G, M, c, h2612, isxs, r):
-    h2612_1, t2612 = isxs.dimensionalize(h2612, G, c, M, r)
-    return h2612_1, t2612
-
-
-@app.cell
-def _(
-    ce_asd_amplitude,
-    ce_asd_frequency,
-    h2612_1,
-    isxs,
-    ligo_o4_asd_amplitude,
-    ligo_o4_asd_frequency,
-    metadata2612,
-    plt,
-    t2612,
-):
-    isxs.iplt_lm(h=h2612_1, t=t2612, metadata=metadata2612, cut=False)
-    plt.loglog(ce_asd_amplitude, ce_asd_frequency, label='CE', color='orange')
-    plt.loglog(ligo_o4_asd_amplitude, ligo_o4_asd_frequency, label='LIGO O4', color='red')
-    plt.draw()
+    xStrain_ecc, yStrain_ecc, hlm_ecc = isxs.load_plots(h=h_ecc_1, t=t_ecc, metadata=metadata_ecc)
+    fig_ecc = isxs.iplt_lm(xStrain_ecc, yStrain_ecc, hlm_ecc, Mass_ecc.value, Distance_ecc.value)
+    fig_ecc.add_trace(go.Scatter(x=ce_asd_amplitude, y=ce_asd_frequency,
+                             line=dict(color='orange', width=2),
+                             name="CE Noise Curve"))
+    fig_ecc.add_trace(go.Scatter(x=ligo_o4_asd_amplitude, y=ligo_o4_asd_frequency,
+                             line=dict(color='orchid', width=2),
+                             name="aLIGO Noise Curve"))
+    mo.vstack([Distance_ecc, Mass_ecc, fig_ecc])
     return
 
 
@@ -729,131 +466,56 @@ def _(mo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
-    mo.md(r"""## Example 3(a): BBH2442 (Mass Ratio: 1; High Precession)""")
-    return
-
-
-@app.cell
-def _(isxs):
-    metadata2442, h2442 = isxs.load_strain("BBH:2442")
-    return h2442, metadata2442
-
-
-@app.cell
-def _(G, M, c, h2442, isxs, r):
-    h2442_1, t2442 = isxs.dimensionalize(h2442, G, c, M, r)
-    return h2442_1, t2442
-
-
-@app.cell
-def _(
-    ce_asd_amplitude,
-    ce_asd_frequency,
-    h2442_1,
-    isxs,
-    ligo_o4_asd_amplitude,
-    ligo_o4_asd_frequency,
-    metadata2442,
-    plt,
-    t2442,
-):
-    isxs.iplt_lm(h=h2442_1, t=t2442, metadata=metadata2442, cut=False)
-    plt.loglog(ce_asd_amplitude, ce_asd_frequency, label='CE', color='orange')
-    plt.loglog(ligo_o4_asd_amplitude, ligo_o4_asd_frequency, label='LIGO O4', color='red')
-    plt.draw()
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(
-        r"""
-    SPA goes crazy! why? 
-    (lm modes are crazy too!)
-    """
+    dropdown_prec = mo.ui.dropdown(
+        options=["BBH:2442 (MR:1)", "BBH:2443 (MR:1)", "BBH:0832 (MR:2)"],
+        value="BBH:2442 (MR:1)",
+        label="Choose a system:",
+        searchable=True,
     )
-    return
+    dropdown_prec
+    return (dropdown_prec,)
 
 
-@app.cell(hide_code=True)
+@app.cell
+def _(G, M, c, dropdown_prec, isxs, r):
+    metadata_prec, h_prec = isxs.load_strain(dropdown_prec.value[:8])
+    h_prec_1, t_prec = isxs.dimensionalize(h_prec, G, c, M, r)
+    return h_prec_1, metadata_prec, t_prec
+
+
+@app.cell
 def _(mo):
-    mo.md(r"""## Example 3(b): BBH0832 (Mass Ratio: 2; High Precession)""")
-    return
-
-
-@app.cell
-def _(isxs):
-    metadata0832, h0832 = isxs.load_strain("BBH:0832")
-    return h0832, metadata0832
-
-
-@app.cell
-def _(G, M, c, h0832, isxs, r):
-    h0832_1, t0832 = isxs.dimensionalize(h0832, G, c, M, r)
-    return h0832_1, t0832
+    Distance_prec = mo.ui.slider(100.0,10000.0,10.0, label="Distance")
+    Mass_prec = mo.ui.slider(33.0,10000.0,10.0, label="Mass")
+    return Distance_prec, Mass_prec
 
 
 @app.cell
 def _(
+    Distance_prec,
+    Mass_prec,
     ce_asd_amplitude,
     ce_asd_frequency,
-    h0832_1,
+    go,
+    h_prec_1,
     isxs,
     ligo_o4_asd_amplitude,
     ligo_o4_asd_frequency,
-    metadata0832,
-    plt,
-    t0832,
+    metadata_prec,
+    mo,
+    t_prec,
 ):
-    isxs.iplt_lm(h=h0832_1, t=t0832, metadata=metadata0832, cut=False)
-    plt.loglog(ce_asd_amplitude, ce_asd_frequency, label='CE', color='orange')
-    plt.loglog(ligo_o4_asd_amplitude, ligo_o4_asd_frequency, label='LIGO O4', color='red')
-    plt.draw()
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""## Example 3(c): BBH2443 (Mass Ratio: 1; High Precession)""")
-    return
-
-
-@app.cell
-def _(isxs):
-    metadata2443, h2443 = isxs.load_strain("BBH:2443")
-    return h2443, metadata2443
-
-
-@app.cell
-def _(G, M, c, h2443, isxs, r):
-    h2443_1, t2443 = isxs.dimensionalize(h2443, G, c, M, r)
-    return h2443_1, t2443
-
-
-@app.cell
-def _(
-    ce_asd_amplitude,
-    ce_asd_frequency,
-    h2443_1,
-    isxs,
-    ligo_o4_asd_amplitude,
-    ligo_o4_asd_frequency,
-    metadata2443,
-    plt,
-    t2443,
-):
-    isxs.iplt_lm(h=h2443_1, t=t2443, metadata=metadata2443, cut=False)
-    plt.loglog(ce_asd_amplitude, ce_asd_frequency, label='CE', color='orange')
-    plt.loglog(ligo_o4_asd_amplitude, ligo_o4_asd_frequency, label='LIGO O4', color='red')
-    plt.draw()
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""Can use the metadata to make an if case for the eccentric case for extra padding""")
+    xStrain_prec, yStrain_prec, hlm_prec = isxs.load_plots(h=h_prec_1, t=t_prec, metadata=metadata_prec)
+    fig_prec = isxs.iplt_lm(xStrain_prec, yStrain_prec, hlm_prec, Mass_prec.value, Distance_prec.value)
+    fig_prec.add_trace(go.Scatter(x=ce_asd_amplitude, y=ce_asd_frequency,
+                             line=dict(color='orange', width=2),
+                             name="CE Noise Curve"))
+    fig_prec.add_trace(go.Scatter(x=ligo_o4_asd_amplitude, y=ligo_o4_asd_frequency,
+                             line=dict(color='orchid', width=2),
+                             name="aLIGO Noise Curve"))
+    mo.vstack([Distance_prec, Mass_prec, fig_prec])
     return
 
 
@@ -864,43 +526,83 @@ def _(mo):
 
 
 @app.cell
-def _(sxs):
-    df = sxs.load("dataframe", tag="3.0.0")
+def _(pd, sxs):
+    df = pd.DataFrame(sxs.load("dataframe", tag="3.0.0"))
     df
     return
 
 
 @app.cell
-def _(isxs):
-    isxs.chooseplot()
+def _(mo):
+    dropdown_choose = mo.ui.dropdown(
+        options=["BBH:", "BHNS", "NSNS"],
+        value="BBH:"
+    )
+    return (dropdown_choose,)
+
+
+@app.cell
+def _(mo):
+    text_choose = mo.ui.text(placeholder="Simulation number...")
+    return (text_choose,)
+
+
+@app.cell
+def _(mo):
+    button = mo.ui.run_button()
+    return (button,)
+
+
+@app.cell
+def _(mo):
+    Distance_choose = mo.ui.slider(100.0,10000.0,10.0, label="Distance")
+    Mass_choose = mo.ui.slider(33.0,10000.0,10.0, label="Mass")
+    return Distance_choose, Mass_choose
+
+
+@app.cell
+def _(button, dropdown_choose, mo, text_choose):
+    mo.hstack([dropdown_choose, text_choose, button], gap=0.1)
     return
 
 
 @app.cell
 def _(
+    Distance_choose,
+    G,
+    M,
+    Mass_choose,
+    button,
+    c,
     ce_asd_amplitude,
     ce_asd_frequency,
+    dropdown_choose,
+    go,
+    isxs,
     ligo_o4_asd_amplitude,
     ligo_o4_asd_frequency,
-    plt,
+    r,
+    text_choose,
 ):
-    # Add the noise curves to the interactive plot
-    plt.loglog(ce_asd_amplitude, ce_asd_frequency, label="CE", color = "orange")
-    plt.loglog(ligo_o4_asd_amplitude, ligo_o4_asd_frequency, label="LIGO O4", color = "red")
-    plt.draw()
-    return
+    if button.value:
+        metadata_choose, h_choose = isxs.load_strain(dropdown_choose.value + text_choose.value)
+        h_choose_1, t_choose = isxs.dimensionalize(h_choose, G, c, M, r)
 
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""<font color='orange'> as of 6/5: First draft of the explanations I would say is more or less complete. I'm going to push everything onto github for review, and we'll see what to change/fix/add. In terms of other changes I'm thinking of adding: captions/labels of all the modes will be helpful, though I'm sure a pain to implement. Also make sure to just re-add all the other missing modes, not just the ones that'll appear above the noise curves initially. You can also change the initial mass/add more masses. I want to also figure out how to deal with all the deprecated simulations - be able to plot them or no? I also want to make the table interactive, but maybe we can worry about that when/if we push everything on marimo?""")
-    return
+        xStrain_choose, yStrain_choose, hlm_choose = isxs.load_plots(h=h_choose_1, t=t_choose, metadata=metadata_choose)
+        fig_choose = isxs.iplt_lm(xStrain_choose, yStrain_choose, hlm_choose, Mass_choose.value, Distance_choose.value)
+        fig_choose.add_trace(go.Scatter(x=ce_asd_amplitude, y=ce_asd_frequency,
+                                 line=dict(color='orange', width=2),
+                                 name="CE Noise Curve"))
+        fig_choose.add_trace(go.Scatter(x=ligo_o4_asd_amplitude, y=ligo_o4_asd_frequency,
+                                 line=dict(color='orchid', width=2),
+                                 name="aLIGO Noise Curve"))
+    return (fig_choose,)
 
 
 @app.cell
-def _():
-    import marimo as mo
-    return (mo,)
+def _(Distance_choose, Mass_choose, button, fig_choose, mo):
+    mo.vstack([Distance_choose, Mass_choose, fig_choose]) if button.value == True else print("Choose a valid system!")
+    return
 
 
 if __name__ == "__main__":

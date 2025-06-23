@@ -1,17 +1,12 @@
-import re
 import sxs
+import math
 import numpy as np
 import pandas as pd
-import bilby
 import scipy.interpolate
 from scipy.signal import argrelextrema
-import matplotlib.pyplot as plt
 import plotly.graph_objects as go
-from matplotlib.widgets import CheckButtons
-import ipywidgets as widgets
 import marimo as mo
 from IPython.display import display
-import mpl_interactions.ipyplot as iplt
 import sxs_iplots as isxs
 import plotly.io as pio
 pio.renderers.default = 'iframe'
@@ -46,7 +41,7 @@ def load_strain(h_id):
 
 def dimensionalize(h, G, c, M, r):
     h.time = h.time * G * (M/(c**3))
-    print(h)
+    #print(h)
     h = h * (M/r) * (G/(c**2))
     t = h.t
     return h, t
@@ -60,7 +55,7 @@ def SPA_fft_calc(l,m, h, t, metadata):
     """
     Calculate the SPA and FFT of user selected mode of strain h
     """
-    
+    """
     #calculate for SPA
     h22 = h.data[:, h.index(2,2)]
     phi22 = np.unwrap(np.angle(h22))
@@ -75,7 +70,7 @@ def SPA_fft_calc(l,m, h, t, metadata):
     philm = np.unwrap(np.angle(hlm))
     philm_t = scipy.interpolate.CubicSpline(t, philm)
     flm, dflmdt = convertlm(m, f22, df22dt)
-
+    """
     #calculate for FFT
     h_lm = h[:, h.index(l,m)]
     h_lm_interpolated = h_lm.interpolate(np.arange(h_lm.t[0], h_lm.t[-1], dt))
@@ -91,12 +86,12 @@ def SPA_fft_calc(l,m, h, t, metadata):
     htilde_lm = np.fft.rfft(hlm_line_subtracted.ndarray.astype(float))*dt
     frequencies_lm = np.fft.rfftfreq(len(hlm_line_subtracted.ndarray.astype(float)), dt)
     htilde_lm_scaled = 2*(np.abs(htilde_lm))*(np.sqrt(frequencies_lm))
-
+    """
     #amplitude and frequency scaling
     f= -flm[i1:i2]
     amp = 2*np.abs(((1/2)*np.abs(hlm[i1:i2])) / np.sqrt(np.abs(dflmdt[i1:i2])))*np.sqrt(np.abs(flm[i1:i2]))
-
-    return f, amp, frequencies_lm, htilde_lm_scaled
+    """
+    return frequencies_lm, htilde_lm_scaled #f, amp
 
 def find_index(data, value):
     array = np.asarray(data)
@@ -115,35 +110,24 @@ def create_functions(h, t, metadata):
                 if m == ell:
                     hlm.append([ell, m])
     
-    f=[]; amp=[]; frequencies_lm=[]; htilde_lm_scaled=[];
+    frequencies_lm=[]; htilde_lm_scaled=[];
     fin_freq = (np.linalg.norm(h.angular_velocity[h.max_norm_index()]) / (2*np.pi)) * 2.15
     for i in hlm:
-        f_i, amp_i, frequencies_lm_i, htilde_lm_scaled_i = SPA_fft_calc(i[0], i[1], h, t, metadata);
-        ini_freq_m = ((metadata.initial_orbital_frequency / (2*np.pi)) * i[-1]) * c**3/(G*M) 
+        frequencies_lm_i, htilde_lm_scaled_i = SPA_fft_calc(i[0], i[1], h, t, metadata);
+        ini_freq_m = ((metadata.initial_orbital_frequency / (2*np.pi)) * i[-1]) * c**3/(G*M) * 1.15
         fin_freq_m = fin_freq * i[-1]
         ini_index_strain = find_index(frequencies_lm_i, ini_freq_m)
         fin_index_strain = find_index(frequencies_lm_i, fin_freq_m)
         #test_index = find_index(htilde_lm_scaled_i, amp_i[0])
-        f.append(np.array(f_i)[::12])
-        amp.append(np.array(amp_i)[::12])
         frequencies_lm.append(np.array(frequencies_lm_i)[ini_index_strain:fin_index_strain][::12])
         htilde_lm_scaled.append(np.array(htilde_lm_scaled_i)[ini_index_strain:fin_index_strain][::12])
     #print(len(f))
-    f=np.array(f); amp=np.array(amp); frequencies_lm=np.array(frequencies_lm, dtype=object); htilde_lm_scaled=np.array(htilde_lm_scaled, dtype=object)
+    frequencies_lm=np.array(frequencies_lm, dtype=object); htilde_lm_scaled=np.array(htilde_lm_scaled, dtype=object)
         
-    return f, amp, frequencies_lm, htilde_lm_scaled, hlm
-"""
-ideally function looks like this to reduce bloat
-def iplt_lm(strain, **kwargs)
-    ...
-    
-where **kwargs includes ratio, and maybe SPA_enable if managing to make an interactive plot enable/disable is impossible
+    return frequencies_lm, htilde_lm_scaled, hlm
 
-strain would be the class that includes all of the parameters needed to calculate the strain and SPA
-
-"""
 def load_plots(h, t, metadata):
-    f_x_SPA_test, f_y_SPA_test, f_x_strain_test, f_y_strain_test, hlm = create_functions(h, t, metadata)
+    f_x_strain_test, f_y_strain_test, hlm = create_functions(h, t, metadata)
     """
     print(f_x_SPA_test(Mass, Distance))
     print(f_x_SPA_test(Mass, Distance)[0])
@@ -153,24 +137,27 @@ def load_plots(h, t, metadata):
     print(len(f_x_strain_test(Mass, Distance)))
     print(len(f_y_strain_test(Mass, Distance)))
     """
-    return f_x_SPA_test, f_y_SPA_test, f_x_strain_test, f_y_strain_test, hlm
+    return f_x_strain_test, f_y_strain_test, hlm
     
-def iplt_lm(xSPA, ySPA, xStrain, yStrain, hlm, Mass, Distance):
+def iplt_lm(xStrain, yStrain, hlm, Mass, Distance):
     mscale = (Mass*1.989e+30)/M
     dscale = (Distance*3.086e+22)/r
-    f_x_SPA = xSPA/mscale
-    f_y_SPA = mscale**(3/2) * ySPA / dscale
     f_x_strain = xStrain/mscale
     f_y_strain = mscale**(3/2) * yStrain / dscale
     
     fig = go.Figure()
-    for i in range(len(f_x_SPA)):
-        fig.add_trace(go.Scatter(x=f_x_SPA[i], y=f_y_SPA[i],
-                         line=dict(color='firebrick', width=1),
-                         name=f"{hlm[i]} SPA"))
+    for i in range(len(f_x_strain)):
         fig.add_trace(go.Scatter(x=f_x_strain[i], y=f_y_strain[i],
                          line=dict(color='royalblue', width=1),
-                         name=f"{hlm[i]} Strain"))
+                         name=f"{hlm[i]}"))
+        fig.add_annotation(x=math.log10(f_x_strain[i][0]), y=math.log10(f_y_strain[i][0]),
+            text=f"{hlm[i]}",
+            showarrow=True,
+            xshift=-5,
+            font=dict(
+                color="mediumvioletred"
+            )
+        )
         #print(i)
 
     # Edit the layout
