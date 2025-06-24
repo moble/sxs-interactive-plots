@@ -111,7 +111,7 @@ def create_functions(h, t, metadata):
                     hlm.append([ell, m])
     
     frequencies_lm=[]; htilde_lm_scaled=[];
-    fin_freq = (np.linalg.norm(h.angular_velocity[h.max_norm_index()]) / (2*np.pi)) * 2.15
+    fin_freq = (np.linalg.norm(h.angular_velocity[h.max_norm_index()]) / (2*np.pi)) * 3
     for i in hlm:
         frequencies_lm_i, htilde_lm_scaled_i = SPA_fft_calc(i[0], i[1], h, t, metadata);
         ini_freq_m = ((metadata.initial_orbital_frequency / (2*np.pi)) * i[-1]) * c**3/(G*M) * 1.15

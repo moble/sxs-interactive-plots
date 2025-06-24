@@ -256,8 +256,8 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    Distance = mo.ui.slider(100.0,10000.0,10.0, label="Distance")
-    Mass = mo.ui.slider(33.0,10000.0,10.0, label="Mass")
+    Distance = mo.ui.slider(100.0,10000.0,10.0, label="Distance", include_input=True)
+    Mass = mo.ui.slider(33.0,10000.0,10.0, label="Mass", include_input=True)
     return Distance, Mass
 
 
@@ -351,8 +351,8 @@ def _(G, M, c, dropdown_MR, isxs, r):
 
 @app.cell
 def _(mo):
-    DistanceMR = mo.ui.slider(100.0,10000.0,10.0, label="Distance")
-    MassMR = mo.ui.slider(33.0,10000.0,10.0, label="Mass")
+    DistanceMR = mo.ui.slider(100.0,10000.0,10.0, label="Distance", include_input=True)
+    MassMR = mo.ui.slider(33.0,10000.0,10.0, label="Mass", include_input=True)
     return DistanceMR, MassMR
 
 
@@ -422,8 +422,8 @@ def _(G, M, c, dropdown_ecc, isxs, r):
 
 @app.cell
 def _(mo):
-    Distance_ecc = mo.ui.slider(100.0,10000.0,10.0, label="Distance")
-    Mass_ecc = mo.ui.slider(33.0,10000.0,10.0, label="Mass")
+    Distance_ecc = mo.ui.slider(100.0,10000.0,10.0, label="Distance", include_input=True)
+    Mass_ecc = mo.ui.slider(33.0,10000.0,10.0, label="Mass", include_input=True)
     return Distance_ecc, Mass_ecc
 
 
@@ -487,8 +487,8 @@ def _(G, M, c, dropdown_prec, isxs, r):
 
 @app.cell
 def _(mo):
-    Distance_prec = mo.ui.slider(100.0,10000.0,10.0, label="Distance")
-    Mass_prec = mo.ui.slider(33.0,10000.0,10.0, label="Mass")
+    Distance_prec = mo.ui.slider(100.0,10000.0,10.0, label="Distance", include_input=True)
+    Mass_prec = mo.ui.slider(33.0,10000.0,10.0, label="Mass", include_input=True)
     return Distance_prec, Mass_prec
 
 
@@ -555,8 +555,8 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    Distance_choose = mo.ui.slider(100.0,10000.0,10.0, label="Distance")
-    Mass_choose = mo.ui.slider(33.0,10000.0,10.0, label="Mass")
+    Distance_choose = mo.ui.slider(100.0,10000.0,10.0, label="Distance", include_input=True)
+    Mass_choose = mo.ui.slider(33.0,10000.0,10.0, label="Mass", include_input=True)
     return Distance_choose, Mass_choose
 
 
