@@ -52,7 +52,6 @@ def _():
     import pandas as pd
     import bilby
     import scipy.interpolate  
-    from scipy.signal import argrelextrema
     import matplotlib.pyplot as plt
     from IPython.display import display
     import sxs_iplots_marimo_plotly as isxs
@@ -142,7 +141,7 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""Okay now that that's out of the way let's delve into our examples! This first one will include a brief walk through of what's going on with the calculations behind the code and their (*brief*) explanations. The subsequent examples follow the same process, just using a different simulation for the purposes of seeing what changes with different mass ratios/eccentricities/precessions. At the very bottom there's an included 'choose your own waveform' for you to test out, if you're curious about any particular binary mass ratio, eccentricity, precession, etc (or any of their combinations)! <font color='orange'> note to myself: please don't forget to implement this! <font color='magenta'> -j 5/29""")
+    mo.md(r"""Okay now that that's out of the way let's delve into our examples! This first one will include a brief walk through of what's going on with the calculations behind the code and their (*brief*) explanations. The subsequent examples follow the same process, just using a different simulation for the purposes of seeing what changes with different mass ratios/eccentricities/precessions. At the very bottom there's an included 'choose your own waveform' for you to test out, if you're curious about any particular binary mass ratio, eccentricity, precession, etc (or any of their combinations)!""")
     return
 
 
@@ -257,7 +256,7 @@ def _(mo):
 @app.cell
 def _(mo):
     Distance = mo.ui.slider(100.0,10000.0,10.0, label="Distance", include_input=True)
-    Mass = mo.ui.slider(33.0,10000.0,10.0, label="Mass", include_input=True)
+    Mass = mo.ui.slider(5.0,10000.0,1.0, label="Mass", value=33 ,include_input=True)
     return Distance, Mass
 
 
@@ -285,12 +284,6 @@ def _(
                              line=dict(color='orchid', width=2),
                              name="aLIGO Noise Curve"))
     mo.vstack([Distance, Mass, fig])
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""<font color=orange> I remember this being pretty annoying to try to implement, but I still think it will be useful to include captions or some sort of label for each (l,m) modes so you can actually see which is which <font color="magenta"> -j 6/3""")
     return
 
 
@@ -330,7 +323,7 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     dropdown_MR = mo.ui.dropdown(
         options=["BBH:1154 (MR:1)", "BBH:2139 (MR:3)", "BBH:1441 (MR:8)", "BBH:1107 (MR:10)"],
@@ -349,14 +342,14 @@ def _(G, M, c, dropdown_MR, isxs, r):
     return hMR_1, metadataMR, tMR
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     DistanceMR = mo.ui.slider(100.0,10000.0,10.0, label="Distance", include_input=True)
     MassMR = mo.ui.slider(33.0,10000.0,10.0, label="Mass", include_input=True)
     return DistanceMR, MassMR
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(
     DistanceMR,
     MassMR,
@@ -401,7 +394,7 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     dropdown_ecc = mo.ui.dropdown(
         options=["BBH:2612 (MR:1)", "BBH:1360 (MR:1)", "BBH:1361 (MR:6)"],
@@ -420,14 +413,14 @@ def _(G, M, c, dropdown_ecc, isxs, r):
     return h_ecc_1, metadata_ecc, t_ecc
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     Distance_ecc = mo.ui.slider(100.0,10000.0,10.0, label="Distance", include_input=True)
     Mass_ecc = mo.ui.slider(33.0,10000.0,10.0, label="Mass", include_input=True)
     return Distance_ecc, Mass_ecc
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(
     Distance_ecc,
     Mass_ecc,
@@ -466,7 +459,7 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     dropdown_prec = mo.ui.dropdown(
         options=["BBH:2442 (MR:1)", "BBH:2443 (MR:1)", "BBH:0832 (MR:2)"],
@@ -485,14 +478,14 @@ def _(G, M, c, dropdown_prec, isxs, r):
     return h_prec_1, metadata_prec, t_prec
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     Distance_prec = mo.ui.slider(100.0,10000.0,10.0, label="Distance", include_input=True)
     Mass_prec = mo.ui.slider(33.0,10000.0,10.0, label="Mass", include_input=True)
     return Distance_prec, Mass_prec
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(
     Distance_prec,
     Mass_prec,
@@ -525,14 +518,14 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(pd, sxs):
     df = pd.DataFrame(sxs.load("dataframe", tag="3.0.0"))
     df
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     dropdown_choose = mo.ui.dropdown(
         options=["BBH:", "BHNS", "NSNS"],
@@ -541,32 +534,32 @@ def _(mo):
     return (dropdown_choose,)
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     text_choose = mo.ui.text(placeholder="Simulation number...")
     return (text_choose,)
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     button = mo.ui.run_button()
     return (button,)
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     Distance_choose = mo.ui.slider(100.0,10000.0,10.0, label="Distance", include_input=True)
     Mass_choose = mo.ui.slider(33.0,10000.0,10.0, label="Mass", include_input=True)
     return Distance_choose, Mass_choose
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(button, dropdown_choose, mo, text_choose):
     mo.hstack([dropdown_choose, text_choose, button], gap=0.1)
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(
     Distance_choose,
     G,
@@ -599,7 +592,7 @@ def _(
     return (fig_choose,)
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(Distance_choose, Mass_choose, button, fig_choose, mo):
     mo.vstack([Distance_choose, Mass_choose, fig_choose]) if button.value == True else print("Choose a valid system!")
     return

@@ -3,11 +3,9 @@ import math
 import numpy as np
 import pandas as pd
 import scipy.interpolate
-from scipy.signal import argrelextrema
 import plotly.graph_objects as go
 import marimo as mo
 from IPython.display import display
-import sxs_iplots as isxs
 import plotly.io as pio
 pio.renderers.default = 'iframe'
 
@@ -81,11 +79,11 @@ def SPA_fft_calc(l,m, h, t, metadata):
         hlm_padded = hlm_transitioned.pad(100000*(G*(M/(c**3))))
     else:
         hlm_padded = hlm_transitioned.pad(25000*(G*(M/(c**3))))
-    hlm_line_subtracted = hlm_padded.line_subtraction()
+    hlm_line_subtracted = hlm_padded.line_subtraction().real
     #print(type(hlm_line_subtracted.ndarray))
-    htilde_lm = np.fft.rfft(hlm_line_subtracted.ndarray.astype(float))*dt
-    frequencies_lm = np.fft.rfftfreq(len(hlm_line_subtracted.ndarray.astype(float)), dt)
-    htilde_lm_scaled = 2*(np.abs(htilde_lm))*(np.sqrt(frequencies_lm))
+    htilde_lm = np.abs(np.fft.rfft(hlm_line_subtracted.ndarray.astype(float))*dt)
+    frequencies_lm = np.abs(np.fft.rfftfreq(len(hlm_line_subtracted.ndarray.astype(float)), dt))
+    htilde_lm_scaled = 2*(np.abs(htilde_lm))*np.abs(np.sqrt(frequencies_lm))
     """
     #amplitude and frequency scaling
     f= -flm[i1:i2]
@@ -111,16 +109,18 @@ def create_functions(h, t, metadata):
                     hlm.append([ell, m])
     
     frequencies_lm=[]; htilde_lm_scaled=[];
-    fin_freq = (np.linalg.norm(h.angular_velocity[h.max_norm_index()]) / (2*np.pi)) * 3
+    fin_freq = (np.linalg.norm(h.angular_velocity[h.max_norm_index()]) / (2*np.pi))
     for i in hlm:
         frequencies_lm_i, htilde_lm_scaled_i = SPA_fft_calc(i[0], i[1], h, t, metadata);
         ini_freq_m = ((metadata.initial_orbital_frequency / (2*np.pi)) * i[-1]) * c**3/(G*M) * 1.15
         fin_freq_m = fin_freq * i[-1]
         ini_index_strain = find_index(frequencies_lm_i, ini_freq_m)
         fin_index_strain = find_index(frequencies_lm_i, fin_freq_m)
+        cutoff_amp = htilde_lm_scaled_i[fin_index_strain] * 1e-2
+        cutoff_index = find_index(htilde_lm_scaled_i[fin_index_strain:], cutoff_amp)
         #test_index = find_index(htilde_lm_scaled_i, amp_i[0])
-        frequencies_lm.append(np.array(frequencies_lm_i)[ini_index_strain:fin_index_strain][::12])
-        htilde_lm_scaled.append(np.array(htilde_lm_scaled_i)[ini_index_strain:fin_index_strain][::12])
+        frequencies_lm.append(np.array(frequencies_lm_i)[ini_index_strain:fin_index_strain+cutoff_index][::12])
+        htilde_lm_scaled.append(np.array(htilde_lm_scaled_i)[ini_index_strain:fin_index_strain+cutoff_index][::12])
     #print(len(f))
     frequencies_lm=np.array(frequencies_lm, dtype=object); htilde_lm_scaled=np.array(htilde_lm_scaled, dtype=object)
         
@@ -181,27 +181,3 @@ def iplt_lm(xStrain, yStrain, hlm, Mass, Distance):
         yaxis_type="log"
     )
     return fig
-    
-def chooseplot():
-    dropdown = widgets.Dropdown(options=['BBH', 'BHNS', 'NSNS'], layout={'width':'72px'})
-    text_input = widgets.Text(description=":", style={'description_width': '5px'}, layout={'width':'72px'})
-    button = widgets.Button(description="Plot!", layout={'width':'72px'})
-    output = widgets.Output() # For displaying results
-
-    def binary_id(b):
-        with output:
-            output.clear_output()
-            binary_val = dropdown.value+ ":" + text_input.value
-            metadatan, hn = isxs.load_strain(binary_val)
-            hn, tn = isxs.dimensionalize(hn, G, c, M, r)
-            isxs.iplt_lm(h=hn, t=tn, metadata=metadatan)
-            #display(filtered_df)
-
-    # Connect the button click to the function
-    button.on_click(binary_id)
-
-    display(widgets.HBox([dropdown, text_input, button]))
-    display(output)
-
-#def change_padding(h, t, metadata):
-    
