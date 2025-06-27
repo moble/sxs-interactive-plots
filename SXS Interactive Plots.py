@@ -159,7 +159,7 @@ def _(mo):
 
 @app.cell
 def _(isxs):
-    metadata2139, h2139 = isxs.load_strain("BBH:2139")
+    metadata2139, h2139 = isxs.load_strain("SXS:BBH:2139")
     return h2139, metadata2139
 
 
@@ -255,8 +255,8 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    Distance = mo.ui.slider(100.0,10000.0,10.0, label="Distance", include_input=True)
-    Mass = mo.ui.slider(5.0,10000.0,1.0, label="Mass", value=33 ,include_input=True)
+    Distance = mo.ui.slider(100.0,10000.0,10.0, label="Distance (Mpc)", include_input=True)
+    Mass = mo.ui.slider(5.0,10000.0,1.0, label="Mass (Solar Mass M☉)", value=33 ,include_input=True)
     return Distance, Mass
 
 
@@ -326,8 +326,8 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     dropdown_MR = mo.ui.dropdown(
-        options=["BBH:1154 (MR:1)", "BBH:2139 (MR:3)", "BBH:1441 (MR:8)", "BBH:1107 (MR:10)"],
-        value="BBH:1154 (MR:1)",
+        options=["SXS:BBH:1154 (MR:1)", "SXS:BBH:2139 (MR:3)", "SXS:BBH:1441 (MR:8)", "SXS:BBH:1107 (MR:10)"],
+        value="SXS:BBH:1154 (MR:1)",
         label="Choose a Mass Ratio",
         searchable=True,
     )
@@ -337,15 +337,15 @@ def _(mo):
 
 @app.cell
 def _(G, M, c, dropdown_MR, isxs, r):
-    metadataMR, hMR = isxs.load_strain(dropdown_MR.value[:8])
+    metadataMR, hMR = isxs.load_strain(dropdown_MR.value[:12])
     hMR_1, tMR = isxs.dimensionalize(hMR, G, c, M, r)
     return hMR_1, metadataMR, tMR
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    DistanceMR = mo.ui.slider(100.0,10000.0,10.0, label="Distance", include_input=True)
-    MassMR = mo.ui.slider(33.0,10000.0,10.0, label="Mass", include_input=True)
+    DistanceMR = mo.ui.slider(100.0,10000.0,10.0, label="Distance (Mpc)", include_input=True)
+    MassMR = mo.ui.slider(33.0,10000.0,10.0, label="Mass (Solar Mass M☉)", include_input=True)
     return DistanceMR, MassMR
 
 
@@ -397,8 +397,8 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     dropdown_ecc = mo.ui.dropdown(
-        options=["BBH:2612 (MR:1)", "BBH:1360 (MR:1)", "BBH:1361 (MR:6)"],
-        value="BBH:2612 (MR:1)",
+        options=["SXS:BBH:2527 (MR:1)", "SXS:BBH:3946 (MR:2)", "SXS:BBH:2550 (MR:4)", "SXS:BBH:2557 (MR:6)"],
+        value="SXS:BBH:2527 (MR:1)",
         label="Choose a system:",
         searchable=True,
     )
@@ -408,15 +408,15 @@ def _(mo):
 
 @app.cell
 def _(G, M, c, dropdown_ecc, isxs, r):
-    metadata_ecc, h_ecc = isxs.load_strain(dropdown_ecc.value[:8])
+    metadata_ecc, h_ecc = isxs.load_strain(dropdown_ecc.value[:12])
     h_ecc_1, t_ecc = isxs.dimensionalize(h_ecc, G, c, M, r)
     return h_ecc_1, metadata_ecc, t_ecc
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    Distance_ecc = mo.ui.slider(100.0,10000.0,10.0, label="Distance", include_input=True)
-    Mass_ecc = mo.ui.slider(33.0,10000.0,10.0, label="Mass", include_input=True)
+    Distance_ecc = mo.ui.slider(100.0,10000.0,10.0, label="Distance (Mpc)", include_input=True)
+    Mass_ecc = mo.ui.slider(33.0,10000.0,10.0, label="Mass (Solar Mass M☉)", include_input=True)
     return Distance_ecc, Mass_ecc
 
 
@@ -462,8 +462,8 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     dropdown_prec = mo.ui.dropdown(
-        options=["BBH:2442 (MR:1)", "BBH:2443 (MR:1)", "BBH:0832 (MR:2)"],
-        value="BBH:2442 (MR:1)",
+        options=["SXS:BBH:2442 (MR:1)", "SXS:2443 (MR:1)", "SXS:0832 (MR:2)"],
+        value="SXS:BBH:2442 (MR:1)",
         label="Choose a system:",
         searchable=True,
     )
@@ -473,15 +473,15 @@ def _(mo):
 
 @app.cell
 def _(G, M, c, dropdown_prec, isxs, r):
-    metadata_prec, h_prec = isxs.load_strain(dropdown_prec.value[:8])
+    metadata_prec, h_prec = isxs.load_strain(dropdown_prec.value[:12])
     h_prec_1, t_prec = isxs.dimensionalize(h_prec, G, c, M, r)
     return h_prec_1, metadata_prec, t_prec
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    Distance_prec = mo.ui.slider(100.0,10000.0,10.0, label="Distance", include_input=True)
-    Mass_prec = mo.ui.slider(33.0,10000.0,10.0, label="Mass", include_input=True)
+    Distance_prec = mo.ui.slider(100.0,10000.0,10.0, label="Distance (Mpc)", include_input=True)
+    Mass_prec = mo.ui.slider(33.0,10000.0,10.0, label="Mass (Solar Mass M☉)", include_input=True)
     return Distance_prec, Mass_prec
 
 
@@ -548,8 +548,8 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    Distance_choose = mo.ui.slider(100.0,10000.0,10.0, label="Distance", include_input=True)
-    Mass_choose = mo.ui.slider(33.0,10000.0,10.0, label="Mass", include_input=True)
+    Distance_choose = mo.ui.slider(100.0,10000.0,10.0, label="Distance (Mpc)", include_input=True)
+    Mass_choose = mo.ui.slider(33.0,10000.0,10.0, label="Mass (Solar Mass M☉)", include_input=True)
     return Distance_choose, Mass_choose
 
 
@@ -560,6 +560,27 @@ def _(button, dropdown_choose, mo, text_choose):
 
 
 @app.cell(hide_code=True)
+def _():
+    """"
+    if button.value == False:
+        print("Choose valid system!")
+    else:
+        metadata_choose, h_choose = isxs.load_strain(dropdown_choose.value + text_choose.value)
+        h_choose_1, t_choose = isxs.dimensionalize(h_choose, G, c, M, r)
+
+        xStrain_choose, yStrain_choose, hlm_choose = isxs.load_plots(h=h_choose_1, t=t_choose, metadata=metadata_choose)
+        fig_choose = isxs.iplt_lm(xStrain_choose, yStrain_choose, hlm_choose, Mass_choose.value, Distance_choose.value)
+        fig_choose.add_trace(go.Scatter(x=ce_asd_amplitude, y=ce_asd_frequency,
+                                    line=dict(color='orange', width=2),
+                                    name="CE Noise Curve"))
+        fig_choose.add_trace(go.Scatter(x=ligo_o4_asd_amplitude, y=ligo_o4_asd_frequency,
+                                    line=dict(color='orchid', width=2),
+                                    name="aLIGO Noise Curve"))
+    """
+    return
+
+
+@app.cell
 def _(
     Distance_choose,
     G,
@@ -574,27 +595,39 @@ def _(
     isxs,
     ligo_o4_asd_amplitude,
     ligo_o4_asd_frequency,
+    mo,
     r,
     text_choose,
 ):
-    if button.value:
-        metadata_choose, h_choose = isxs.load_strain(dropdown_choose.value + text_choose.value)
-        h_choose_1, t_choose = isxs.dimensionalize(h_choose, G, c, M, r)
+    mo.stop(not button.value)
+    metadata_choose, h_choose = isxs.load_strain(dropdown_choose.value + text_choose.value)
+    h_choose_1, t_choose = isxs.dimensionalize(h_choose, G, c, M, r)
 
-        xStrain_choose, yStrain_choose, hlm_choose = isxs.load_plots(h=h_choose_1, t=t_choose, metadata=metadata_choose)
-        fig_choose = isxs.iplt_lm(xStrain_choose, yStrain_choose, hlm_choose, Mass_choose.value, Distance_choose.value)
-        fig_choose.add_trace(go.Scatter(x=ce_asd_amplitude, y=ce_asd_frequency,
-                                 line=dict(color='orange', width=2),
-                                 name="CE Noise Curve"))
-        fig_choose.add_trace(go.Scatter(x=ligo_o4_asd_amplitude, y=ligo_o4_asd_frequency,
-                                 line=dict(color='orchid', width=2),
-                                 name="aLIGO Noise Curve"))
+    xStrain_choose, yStrain_choose, hlm_choose = isxs.load_plots(h=h_choose_1, t=t_choose, metadata=metadata_choose)
+    fig_choose = isxs.iplt_lm(xStrain_choose, yStrain_choose, hlm_choose, Mass_choose.value, Distance_choose.value)
+    fig_choose.add_trace(go.Scatter(x=ce_asd_amplitude, y=ce_asd_frequency,
+                                    line=dict(color='orange', width=2),
+                                    name="CE Noise Curve"))
+    fig_choose.add_trace(go.Scatter(x=ligo_o4_asd_amplitude, y=ligo_o4_asd_frequency,
+                                    line=dict(color='orchid', width=2),
+                                    name="aLIGO Noise Curve"))
     return (fig_choose,)
+
+
+@app.cell
+def _(button):
+    print(button.value)
+    return
 
 
 @app.cell(hide_code=True)
 def _(Distance_choose, Mass_choose, button, fig_choose, mo):
     mo.vstack([Distance_choose, Mass_choose, fig_choose]) if button.value == True else print("Choose a valid system!")
+    return
+
+
+@app.cell
+def _():
     return
 
 

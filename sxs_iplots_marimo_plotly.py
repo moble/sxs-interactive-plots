@@ -25,15 +25,15 @@ def sort(binary_id):
 
 def load_strain(h_id):
     simulations = sxs.load("simulations")
-    sxs_bbh_n = sxs.load("SXS:"+h_id)
+    sxs_bbh_n = sxs.load(h_id)
     metadata = sxs_bbh_n.metadata
     h = sxs_bbh_n.h
     reference_index = h.index_closest_to(metadata.reference_time)
     h=h[reference_index:]
-    print(f"Mass ratio: {metadata.reference_mass_ratio} \nReference eccentricity: {metadata.reference_eccentricity} \nReference Chi1_Perp (Precession): {metadata.reference_chi1_perp} \nReference Chi2_Perp (Precession): {metadata.reference_chi2_perp}")
+    print(f"n_orbits: {metadata.number_of_orbits:.3g} \nMass ratio: {metadata.reference_mass_ratio:.3g} \nEccentricity: {metadata.reference_eccentricity:.3g} \nchi1: [{", ".join(f"{c:.3g}" for c in metadata.reference_dimensionless_spin1)}] \nchi2: [{", ".join(f"{c:.3g}" for c in metadata.reference_dimensionless_spin2)}] \nchi1_Perp: {metadata.reference_chi1_perp} \nchi2_Perp: {metadata.reference_chi2_perp}")
     #print(int(h_id))
     #print(type(int(h_id)))
-    n = sort(h_id)
+    n = sort(h_id[4:])
     display(df[n:n+1])
     return metadata, h
 
