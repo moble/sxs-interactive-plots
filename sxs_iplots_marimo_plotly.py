@@ -43,11 +43,6 @@ def dimensionalize(h, G, c, M, r):
     h = h * (M/r) * (G/(c**2))
     t = h.t
     return h, t
-    
-def convertlm(m, f22, df22dt):
-    flm = f22 * (m / 2)
-    dflmdt = df22dt * (m / 2)  
-    return flm, dflmdt
 
 def SPA_fft_calc(l,m, h, t, metadata):
     """
@@ -73,8 +68,8 @@ def SPA_fft_calc(l,m, h, t, metadata):
     h_lm = h[:, h.index(l,m)]
     h_lm_interpolated = h_lm.interpolate(np.arange(h_lm.t[0], h_lm.t[-1], dt))
     hlm_tapered = h_lm_interpolated.taper(0, h.t[0]+1000*(G*(M/(c**3))))
-    hlm_transitioned = hlm_tapered.transition_to_constant(h.t[h.max_norm_index()+100])#, h.max_norm_time()+200*(G*(M/(c**3))))
-    #hlm_transitioned = hlm_tapered.transition_to_constant(h.max_norm_time()+100*(G*(M/(c**3))#, h.max_norm_time()+200*(G*(M/(c**3))))
+    #hlm_transitioned = hlm_tapered.transition_to_constant(h.t[h.max_norm_index()+100])#, h.max_norm_time()+200*(G*(M/(c**3))))
+    hlm_transitioned = hlm_tapered.transition_to_constant(h.max_norm_time()+100*(G*(M/(c**3))))#, h.max_norm_time()+200*(G*(M/(c**3))))
     if type(metadata.reference_eccentricity) == float and ((metadata.reference_eccentricity) > 0.3):
         hlm_padded = hlm_transitioned.pad(100000*(G*(M/(c**3))))
     else:

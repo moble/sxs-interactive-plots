@@ -525,58 +525,37 @@ def _(pd, sxs):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     dropdown_choose = mo.ui.dropdown(
-        options=["BBH:", "BHNS", "NSNS"],
-        value="BBH:"
+        options=["SXS:BBH:", "SXS:BHNS", "SXS:NSNS"],
+        value="SXS:BBH:"
     )
     return (dropdown_choose,)
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
-    text_choose = mo.ui.text(placeholder="Simulation number...")
+    text_choose = mo.ui.text(placeholder="Simulation number...", value="2524")
     return (text_choose,)
 
 
-@app.cell(hide_code=True)
-def _(mo):
-    button = mo.ui.run_button()
-    return (button,)
+@app.cell
+def _():
+    #button = mo.ui.run_button()
+    return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     Distance_choose = mo.ui.slider(100.0,10000.0,10.0, label="Distance (Mpc)", include_input=True)
     Mass_choose = mo.ui.slider(33.0,10000.0,10.0, label="Mass (Solar Mass M☉)", include_input=True)
     return Distance_choose, Mass_choose
 
 
-@app.cell(hide_code=True)
-def _(button, dropdown_choose, mo, text_choose):
-    mo.hstack([dropdown_choose, text_choose, button], gap=0.1)
-    return
-
-
-@app.cell(hide_code=True)
-def _():
-    """"
-    if button.value == False:
-        print("Choose valid system!")
-    else:
-        metadata_choose, h_choose = isxs.load_strain(dropdown_choose.value + text_choose.value)
-        h_choose_1, t_choose = isxs.dimensionalize(h_choose, G, c, M, r)
-
-        xStrain_choose, yStrain_choose, hlm_choose = isxs.load_plots(h=h_choose_1, t=t_choose, metadata=metadata_choose)
-        fig_choose = isxs.iplt_lm(xStrain_choose, yStrain_choose, hlm_choose, Mass_choose.value, Distance_choose.value)
-        fig_choose.add_trace(go.Scatter(x=ce_asd_amplitude, y=ce_asd_frequency,
-                                    line=dict(color='orange', width=2),
-                                    name="CE Noise Curve"))
-        fig_choose.add_trace(go.Scatter(x=ligo_o4_asd_amplitude, y=ligo_o4_asd_frequency,
-                                    line=dict(color='orchid', width=2),
-                                    name="aLIGO Noise Curve"))
-    """
+@app.cell
+def _(dropdown_choose, mo, text_choose):
+    mo.hstack([dropdown_choose, text_choose], gap=0.1, justify="start")
     return
 
 
@@ -586,7 +565,6 @@ def _(
     G,
     M,
     Mass_choose,
-    button,
     c,
     ce_asd_amplitude,
     ce_asd_frequency,
@@ -599,7 +577,6 @@ def _(
     r,
     text_choose,
 ):
-    mo.stop(not button.value)
     metadata_choose, h_choose = isxs.load_strain(dropdown_choose.value + text_choose.value)
     h_choose_1, t_choose = isxs.dimensionalize(h_choose, G, c, M, r)
 
@@ -611,23 +588,13 @@ def _(
     fig_choose.add_trace(go.Scatter(x=ligo_o4_asd_amplitude, y=ligo_o4_asd_frequency,
                                     line=dict(color='orchid', width=2),
                                     name="aLIGO Noise Curve"))
+    mo.vstack([Distance_choose, Mass_choose, fig_choose])
     return (fig_choose,)
 
 
 @app.cell
-def _(button):
-    print(button.value)
-    return
-
-
-@app.cell(hide_code=True)
-def _(Distance_choose, Mass_choose, button, fig_choose, mo):
-    mo.vstack([Distance_choose, Mass_choose, fig_choose]) if button.value == True else print("Choose a valid system!")
-    return
-
-
-@app.cell
-def _():
+def _(Distance_choose, Mass_choose, fig_choose, mo):
+    mo.vstack([Distance_choose, Mass_choose, fig_choose])
     return
 
 
