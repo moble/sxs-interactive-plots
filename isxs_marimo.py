@@ -17,16 +17,16 @@ def load_data():
     loads the data of the included strains
     returns array of lm modes, array of h ids, nested arrays of htilde and frequencies, and array of metadatas
     """
-    with open('marimo_data.csv', 'r') as file:
-        reader = csv.reader(file)
-        hlm = reader[0]
-        h_id_list = []
-        strain_data = []
-        metadata_list = []
-        for row in reader[1:]:
-            h_id_list.append(row[0])
-            strain_data.append(row[1:3])
-            metadata_list.append(row[-1])
+    file = np.load("marimo_data.npz", allow_pickle=True)
+    data = file['arr_0']
+    hlm = data[0]
+    h_id_list = []
+    strain_data = []
+    metadata_list = []
+    for strain in data[1:]:
+        h_id_list.append(strain[0])
+        strain_data.append(strain[1:3])
+        metadata_list.append(strain[3])
     
     return hlm, h_id_list, strain_data, metadata_list
 
@@ -42,13 +42,15 @@ def load_plots(strain_data, h_id_index):
     returns the htilde strain and frequency arrays of corresponding h_id
     """
     strain = strain_data[h_id_index]
-    frequencies = [i[0] for i in strain]
-    htilde = [i[1] for i in strain]
-    return np.array(frequencies), np.array(htilde)
+    frequencies = strain[0]
+    htilde = strain[1]
+    return frequencies, htilde
     
 def find_index(data, value):
-    array = np.asarray(data)
-    idx = (np.abs(data - value)).argmin()
+    try:
+        idx = data.index(value)
+    except ValueError:
+        print(f"{value} is not a supported strain")
     return idx
 
 

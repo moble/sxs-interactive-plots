@@ -559,7 +559,7 @@ def _(dropdown_choose, mo, text_choose):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(
     Distance_choose,
     G,

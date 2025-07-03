@@ -97,23 +97,20 @@ def create_files():
                     
     binaries = ["SXS:BBH:2378", "SXS:BBH:2516", "SXS:BBH:3551", "SXS:BBH:2524", "SXS:BBH:2139", "SXS:BBH:1154", "SXS:BBH:1441", "SXS:BBH:1107", "SXS:BBH:2527", "SXS:BBH:3946", "SXS:BBH:2550", "SXS:BBH:2557", "SXS:BBH:2442", "SXS:BBH:2443", "SXS:BBH:0832"]
 
-    strain_data = [hlm]
+    strain_data = [np.array(hlm)]
     for h_id in binaries:
         metadata, h = load_strain(h_id)
         h, t = dimensionalize(h)
         frequencies, htilde = create_functions(h, t, hlm, metadata)
         metadata_info = [["Number of orbits", "Mass Ratio", "eccentricity", "chi1", "chi2", "chi1_perp", "chi2_perp"],[metadata.number_of_orbits, metadata.reference_mass_ratio, metadata.reference_eccentricity, [{", ".join(f"{c:.3g}" for c in metadata.reference_dimensionless_spin1)}], [{", ".join(f"{c:.3g}" for c in metadata.reference_dimensionless_spin2)}], metadata.reference_chi1_perp, metadata.reference_chi2_perp]]
-        strain_info = [h_id, frequencies, htilde, metadata_info]
-        strain_data.append(strain_info)
+        strain_info = [h_id, np.array(frequencies), np.array(htilde), np.array(metadata_info, dtype=object)]
+        strain_data.append(np.array(strain_info, dtype=object))
 
     #maybe add catalog to data file too?
 
-    return strain_data
+    return np.array(strain_data, dtype=object)
     
 data = create_files()
 
-file_name = "marimo_data.csv"
-with open(file_name, 'w', newline='') as file:
-    writer = csv.writer(file)
-    writer.writerows(data)
+np.savez_compressed("marimo_data", data)
     
