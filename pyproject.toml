@@ -3,7 +3,7 @@
 # version.  This isn't actually a project, and we're not tracking the
 # project's version.
 [project]
-name = "data.black-holes.org"
+name = "plots.black-holes.org"
 version = "1.0.0"
 requires-python = ">=3.13,<3.14"
 
@@ -17,7 +17,7 @@ extra-dependencies = [
   "uv",
 ]
 [tool.hatch.envs.marimo.scripts]
-edit = "marimo edit --sandbox marimo_catalog/notebook.py"
-run = "marimo run --sandbox marimo_catalog/notebook.py"
-check = "uv run marimo_catalog/notebook.py"  # Just to see if the script runs successfully
-convert = "marimo export html-wasm marimo_catalog/notebook.py -f -o document_root/simulations --mode run"
+edit = "marimo edit --sandbox 'SXS Interactive Plots Remake.py'"
+run = "marimo run --sandbox 'SXS Interactive Plots Remake.py'"
+check = "uv run 'SXS Interactive Plots Remake.py'"  # Just to see if the script runs successfully
+convert = "marimo export html-wasm 'SXS Interactive Plots Remake.py' -f -o document_root/simulations --mode run"
