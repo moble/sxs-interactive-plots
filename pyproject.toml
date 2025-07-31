@@ -1,0 +1,23 @@
+# NOTE: This section is almost useless; it's just here to make sure
+# that certain tools don't error out, and to specify the Python
+# version.  This isn't actually a project, and we're not tracking the
+# project's version.
+[project]
+name = "plots.black-holes.org"
+version = "1.0.0"
+requires-python = ">=3.13,<3.14"
+
+# Ditto the fakery here.  This just lets marimo run
+[tool.setuptools.packages.find]
+exclude = ["document_root*"]
+
+[tool.hatch.envs.marimo]
+extra-dependencies = [
+  "marimo",
+  "uv",
+]
+[tool.hatch.envs.marimo.scripts]
+edit = "marimo edit --sandbox 'SXS Interactive Plots Remake.py'"
+run = "marimo run --sandbox 'SXS Interactive Plots Remake.py'"
+check = "uv run 'SXS Interactive Plots Remake.py'"  # Just to see if the script runs successfully
+convert = "marimo export html-wasm 'SXS Interactive Plots Remake.py' -f -o document_root/simulations --mode run"
