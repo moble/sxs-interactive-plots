@@ -17,7 +17,7 @@ extra-dependencies = [
   "uv",
 ]
 [tool.hatch.envs.marimo.scripts]
-edit = "marimo edit --sandbox 'SXS Interactive Plots Remake.py'"
-run = "marimo run --sandbox 'SXS Interactive Plots Remake.py'"
-check = "uv run 'SXS Interactive Plots Remake.py'"  # Just to see if the script runs successfully
-convert = "marimo export html-wasm 'SXS Interactive Plots Remake.py' -f -o document_root/simulations --mode run"
+edit = "marimo edit --sandbox 'SXSInteractivePlots.py'"
+run = "marimo run --sandbox 'SXSInteractivePlots.py'"
+check = "uv run 'SXSInteractivePlots.py'"  # Just to see if the script runs successfully
+convert = "marimo export html-wasm 'SXSInteractivePlots.py' -f -o document_root/simulations --mode run"
