@@ -58,7 +58,7 @@ def _():
     import plotly.graph_objects as go
     import plotly.io as pio
     pio.renderers.default = 'iframe'
-    return bilby, go, isxs, mo, pd, plt, re, sxs
+    return bilby, go, isxs, mo, np, pd, plt, re, scipy, sxs
 
 
 @app.cell(hide_code=True)
@@ -256,6 +256,7 @@ def _(mo):
 @app.cell
 def _(mo):
     Distance = mo.ui.slider(100.0,10000.0,10.0, label="Distance (Mpc)", include_input=True)
+
     Mass = mo.ui.slider(5.0,10000.0,1.0, label="Mass (Solar Mass M☉)", value=33 ,include_input=True)
     return Distance, Mass
 
@@ -284,6 +285,79 @@ def _(
                              line=dict(color='orchid', width=2),
                              name="aLIGO Noise Curve"))
     mo.vstack([Distance, Mass, fig])
+    return xStrain, yStrain
+
+
+@app.cell
+def _(xStrain):
+    len(xStrain[0])
+    return
+
+
+@app.cell
+def _(np, scipy, xStrain, yStrain):
+    xStrain1 = []
+    yStrain2 = []
+    for j in range(len(xStrain)):
+        new_frequencies = np.logspace(np.log10(xStrain[j].min()), np.log10(yStrain[j].max()), 50)
+        log_frequencies = np.log10(xStrain[j])
+        log_magnitudes = np.log10(yStrain[j])
+        log_interp_func = scipy.interpolate.interp1d(log_frequencies, log_magnitudes, kind='linear')
+        interpolated_log_magnitudes = log_interp_func(np.log10(new_frequencies))
+        interpolated_magnitudes = 10**interpolated_log_magnitudes
+        xStrain1.append(new_frequencies)
+        yStrain2.append(interpolated_magnitudes)
+    return
+
+
+@app.cell
+def _(np):
+    def cut_freq(freq, htilde):
+        i = 0
+        while freq[i] != freq[-1]:
+            print(f"i:{i}")
+            print(f"freq[i]:{freq[i]}")
+            print(f"freq[i]*1.008 = {freq[i]*1.008}")
+            print(f"freq[i+1]:{freq[i+1]}")
+            if freq[i+1] < freq[i] * 1.008:
+                print("deleted")
+                freq = np.delete(freq, i+1)
+                htilde = np.delete(htilde, i+1)
+            else:
+                print("kept")
+                i+=1
+
+        return freq, htilde
+    return (cut_freq,)
+
+
+@app.cell
+def _(xStrain):
+    xStrain[0]
+    return
+
+
+@app.cell
+def _(xStrain):
+    len(xStrain[0])
+    return
+
+
+@app.cell
+def _(cut_freq, xStrain, yStrain):
+    fnew, htildenew = cut_freq(xStrain[0], yStrain[0])
+    return (fnew,)
+
+
+@app.cell
+def _(fnew):
+    fnew
+    return
+
+
+@app.cell
+def _(fnew):
+    len(fnew)
     return
 
 
@@ -349,6 +423,12 @@ def _(mo):
     return DistanceMR, MassMR
 
 
+@app.cell
+def _(xStrainMR):
+    print(len(xStrainMR[3]))
+    return
+
+
 @app.cell(hide_code=True)
 def _(
     DistanceMR,
@@ -373,7 +453,7 @@ def _(
                              line=dict(color='orchid', width=2),
                              name="aLIGO Noise Curve"))
     mo.vstack([DistanceMR, MassMR, figMR])
-    return
+    return (xStrainMR,)
 
 
 @app.cell(hide_code=True)
@@ -447,6 +527,17 @@ def _(
     return
 
 
+@app.cell
+def _(h_ecc_1, plt):
+    plt.figure()
+    plt.plot(h_ecc_1.t, h_ecc_1.data.view(float))
+    plt.title(f"Extrapolated waveform")
+    plt.xlabel(r"$(t_{\mathrm{corr}} - r_\ast)/M$")
+    plt.ylabel(r"$r\, h^{(\ell,m)}/M$");
+    plt.show()
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""# High <span style="color:lightblue">Precession</span> Examples #""")
@@ -509,6 +600,18 @@ def _(
                              line=dict(color='orchid', width=2),
                              name="aLIGO Noise Curve"))
     mo.vstack([Distance_prec, Mass_prec, fig_prec])
+    return (xStrain_prec,)
+
+
+@app.cell
+def _(xStrain_prec):
+    xStrain_prec[1]
+    return
+
+
+@app.cell
+def _():
+    35.24481947 *1.008
     return
 
 

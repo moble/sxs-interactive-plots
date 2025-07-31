@@ -38,7 +38,8 @@ def load_strain(h_id):
     return metadata, h
 
 def dimensionalize(h, G, c, M, r):
-    h.time = h.time * G * (M/(c**3))
+    print(h.t)
+    h.t = h.t * G * (M/(c**3))
     #print(h)
     h = h * (M/r) * (G/(c**2))
     t = h.t
@@ -70,8 +71,8 @@ def SPA_fft_calc(l,m, h, t, metadata):
     hlm_tapered = h_lm_interpolated.taper(0, h.t[0]+1000*(G*(M/(c**3))))
     #hlm_transitioned = hlm_tapered.transition_to_constant(h.t[h.max_norm_index()+100])#, h.max_norm_time()+200*(G*(M/(c**3))))
     hlm_transitioned = hlm_tapered.transition_to_constant(h.max_norm_time()+100*(G*(M/(c**3))))#, h.max_norm_time()+200*(G*(M/(c**3))))
-    if type(metadata.reference_eccentricity) == float and ((metadata.reference_eccentricity) > 0.3):
-        hlm_padded = hlm_transitioned.pad(100000*(G*(M/(c**3))))
+    if type(metadata.reference_eccentricity) == float and ((metadata.reference_eccentricity) > 0.1):
+        hlm_padded = hlm_transitioned.pad(250000*(G*(M/(c**3))))
     else:
         hlm_padded = hlm_transitioned.pad(25000*(G*(M/(c**3))))
     hlm_line_subtracted = hlm_padded.line_subtraction().real
