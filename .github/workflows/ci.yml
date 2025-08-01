@@ -49,47 +49,13 @@ jobs:
       - name: Export notebook
         run: .venv/bin/hatch run marimo:convert
 
-      - name: Determine if release steps should run
-        id: release_check
-        run: |
-          # Default to skipping release steps
-          echo "deploy=false" >> $GITHUB_OUTPUT
-
-          # If the ref is main, check the commit message for [skip release]
-          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
-            COMMIT_MSG="$(git log -1 --pretty=%B)"
-            if [[ "$COMMIT_MSG" != *"[skip release]"* ]]; then
-              echo "deploy=true" >> $GITHUB_OUTPUT
-              echo "deploy=true"
-            fi
-          fi
-
-      - name: Commit version bump
-        if: ${{ steps.release_check.outputs.deploy == 'true' }}
-        run: |
-          # Note that we need to set read and write permissions under
-          # "Settings" > "Actions" > "General" > "Workflow permissions"
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add document_root/simulations
-          # only commit & push if there's something new
-          if ! git diff --cached --quiet; then
-            git commit -m "Exported marimo notebook with latest changes"
-            git status  # Just to log what has changed
-            git push
-          else
-            echo "No changes to commit, skipping."
-          fi
-
       - name: Upload document_root directory as artifact
-        if: ${{ steps.release_check.outputs.deploy == 'true' }}
         uses: actions/upload-pages-artifact@v3
         with:
-          path: document_root
+          path: output
 
       - name: Deploy to GitHub Pages
         # Be sure to allow this under Settings > Pages > Build and deployment > Source > Github Actions
-        if: ${{ steps.release_check.outputs.deploy == 'true' }}
         id: deployment
         uses: actions/deploy-pages@v4
         with:
