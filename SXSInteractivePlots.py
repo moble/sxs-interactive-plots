@@ -8,7 +8,6 @@ app = marimo.App()
 def _():
     import marimo as mo
     import re
-    import sxs
     import math
     import numpy as np
     import pandas as pd
